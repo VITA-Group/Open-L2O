@@ -1,6 +1,4 @@
-## Training Stronger Baselines for Learning to Optimize
-
-**Detailed instructions for experiments on L2O-DM and RNNProp**
+## L2O-DM, RNNProp and their Enhanced Versions
 
 ### Experiments on L2O-DM
 
