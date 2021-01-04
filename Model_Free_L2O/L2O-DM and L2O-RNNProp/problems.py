@@ -19,6 +19,7 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+import numpy as np
 import tarfile
 import sys
 
@@ -119,7 +120,7 @@ def lasso(batch_size=128, num_dims=10, stddev=0.01, l=0.005, dtype=tf.float32):
                         initializer=tf.random_uniform_initializer(),
                         trainable=False)
     y = tf.get_variable("y",
-                        shape=[batch_size, num_dims],
+                        shape=[batch_size, num_dims, 1],
                         dtype=dtype,
                         initializer=tf.random_uniform_initializer(),
                         trainable=False)
@@ -131,6 +132,7 @@ def lasso(batch_size=128, num_dims=10, stddev=0.01, l=0.005, dtype=tf.float32):
     return result
 
   return build
+
 
 def lasso_fixed(data_A, data_b, stddev=0.01, l=0.005, dtype=tf.float32):
   """lasso problem: f(x) = 0.5*||Wx - y||2 + lamada *||x||1."""
@@ -169,6 +171,44 @@ def lasso_fixed(data_A, data_b, stddev=0.01, l=0.005, dtype=tf.float32):
     other_term = l * tf.norm(x, ord=1, axis=1, keepdims=True)
     result = tf.reduce_mean(left_term + other_term)
     return result
+
+  return build
+
+def rastrigin(batch_size=128, num_dims=10, alpha=10, stddev=1, dtype=tf.float32):
+  
+  def build():
+    """Builds loss graph."""
+    # Trainable variable.
+    x = tf.get_variable(
+        "x",
+        shape=[batch_size, num_dims],
+        dtype=dtype,
+        initializer=tf.random_normal_initializer(stddev=stddev)
+    )
+
+    # Non-trainable variables.
+    A = tf.get_variable("A",
+                        dtype=dtype,
+                        shape=[batch_size, num_dims, num_dims],
+                        initializer=tf.random_normal_initializer(stddev=stddev),
+                        trainable=False)
+    B = tf.get_variable("B",
+                        dtype=dtype,
+                        shape=[batch_size, num_dims],
+                        initializer=tf.random_normal_initializer(stddev=stddev),
+                        trainable=False)
+    C = tf.get_variable("C",
+                        dtype=dtype,
+                        shape=[batch_size, num_dims],
+                        initializer=tf.random_normal_initializer(stddev=stddev),
+                        trainable=False)
+
+    product = tf.matmul(A, tf.expand_dims(x, -1))
+    ras_norm=tf.norm(product-B,ord=2,axis=[-2,-1])
+    
+    cqTcos=tf.squeeze(tf.matmul(tf.transpose(C,perm=[0,2,1]),tf.cos(2*np.pi*x)))
+
+    return tf.reduce_mean(0.5*(ras_norm**2)-alpha*cqTcos+alpha*num_dims)
 
   return build
 
