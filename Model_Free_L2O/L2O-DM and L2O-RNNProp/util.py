@@ -227,6 +227,23 @@ def get_config(problem_name, path=None, mode=None, num_hidden_layer=None, net_na
         "net_path": path
     }}
     net_assignments = None
+  elif problem_name == "rastrigin":
+    problem = problems.rastrigin(batch_size=128, num_dims=2)
+    net_config = {"cw": {
+        "net": "CoordinateWiseDeepLSTM",
+        "net_options": {"layers": (20, 20)},
+        "net_path": path
+    }}
+    net_assignments = None
+  elif problem_name == "lasso":
+    problem = problems.lasso(batch_size=128, num_dims=2)
+    net_config = {"cw": {
+        "net": "CoordinateWiseDeepLSTM",
+        "net_options": {"layers": (20, 20)},
+        "net_path": path
+    }}
+    net_assignments = None
+  
   else:
     raise ValueError("{} is not a valid problem".format(problem_name))
 

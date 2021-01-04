@@ -367,7 +367,27 @@ class Problem(object):
       reg = self.jacob_trace(grads)
     return noisy_grads, reg
 
+class Lasso(Problem):
+  """Optimizes a random lasso function.
 
+  The objective is f(x) = (1/2)||Wx - y||_2 + lamada *||x||_1
+  """
+
+  def __init__(self, ndim, lambda_=1, random_seed=None, noise_stdev=0.0):
+    param_shapes = [(ndim, 1)]
+    super(Lasso, self).__init__(param_shapes, random_seed, noise_stdev)
+    self.lambda_ = lambda_
+
+    self.w = np.random.randn(ndim, ndim).astype("float32")
+    self.y = np.random.randn(ndim, 1).astype("float32")
+
+  def objective(self, params, data=None, labels=None):
+    """Lasso objective"""
+    return tf.nn.l2_loss(tf.matmul(self.w, params[0]) - self.y) + self.lambda_\
+    * tf.nn.l1_loss(params[0])
+
+class Rastrigin(Problem):
+  pass # TODO
 class Quadratic(Problem):
   """Optimizes a random quadratic function.
 

@@ -6,14 +6,14 @@
 
 - Python 3.7
 
-- TensorFlow 1.14.0
+- TensorFlow 1.14.0 (pip install tensorflow==1.14.0 or pip install tensorflow-gpu==1.14.0)
 
 - sonnet 1.11 (pip install dm-sonnet=1.11)
 
 #### Train L2O-DM
 
 ```shell
-python train_dm.py --save_path=${OUTPUT_DIR} --problem=mnist --if_cl=False --if_mt=False —num_epochs=10000 --num_steps=100
+python train_dm.py --save_path=${OUTPUT_DIR} --problem=mnist --if_cl=False --if_mt=False --num_epochs=10000 --num_steps=100
 ```
 
 #### Train L2O-DM (enhanced)

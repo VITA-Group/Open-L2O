@@ -181,7 +181,7 @@ def rastrigin(batch_size=128, num_dims=10, alpha=10, stddev=1, dtype=tf.float32)
     # Trainable variable.
     x = tf.get_variable(
         "x",
-        shape=[batch_size, num_dims],
+        shape=[batch_size, num_dims, 1],
         dtype=dtype,
         initializer=tf.random_normal_initializer(stddev=stddev)
     )
@@ -194,16 +194,16 @@ def rastrigin(batch_size=128, num_dims=10, alpha=10, stddev=1, dtype=tf.float32)
                         trainable=False)
     B = tf.get_variable("B",
                         dtype=dtype,
-                        shape=[batch_size, num_dims],
+                        shape=[batch_size, num_dims, 1],
                         initializer=tf.random_normal_initializer(stddev=stddev),
                         trainable=False)
     C = tf.get_variable("C",
                         dtype=dtype,
-                        shape=[batch_size, num_dims],
+                        shape=[batch_size, num_dims, 1],
                         initializer=tf.random_normal_initializer(stddev=stddev),
                         trainable=False)
 
-    product = tf.matmul(A, tf.expand_dims(x, -1))
+    product = tf.matmul(A, x)
     ras_norm=tf.norm(product-B,ord=2,axis=[-2,-1])
     
     cqTcos=tf.squeeze(tf.matmul(tf.transpose(C,perm=[0,2,1]),tf.cos(2*np.pi*x)))
