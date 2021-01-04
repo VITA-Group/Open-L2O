@@ -99,6 +99,78 @@ def quadratic(batch_size=128, num_dims=10, stddev=0.01, dtype=tf.float32):
 
   return build
 
+def lasso(batch_size=128, num_dims=10, stddev=0.01, l=0.005, dtype=tf.float32):
+  """lasso problem: f(x) = 0.5*||Wx - y||2 + lamada *||x||1."""
+
+  def build():
+    """Builds loss graph."""
+
+    # Trainable variable.
+    x = tf.get_variable(
+        "x",
+        shape=[batch_size, num_dims],
+        dtype=dtype,
+        initializer=tf.random_normal_initializer(stddev=stddev))
+
+    # Non-trainable variables.
+    w = tf.get_variable("w",
+                        shape=[batch_size, num_dims, num_dims],
+                        dtype=dtype,
+                        initializer=tf.random_uniform_initializer(),
+                        trainable=False)
+    y = tf.get_variable("y",
+                        shape=[batch_size, num_dims],
+                        dtype=dtype,
+                        initializer=tf.random_uniform_initializer(),
+                        trainable=False)
+
+    product = tf.matmul(w, tf.expand_dims(x, -1))
+    left_term = 0.5 * tf.reduce_sum((product - y) ** 2, 1)
+    other_term = l * tf.norm(x, ord=1, axis=1, keepdims=True)
+    result = tf.reduce_mean(left_term + other_term)
+    return result
+
+  return build
+
+def lasso_fixed(data_A, data_b, stddev=0.01, l=0.005, dtype=tf.float32):
+  """lasso problem: f(x) = 0.5*||Wx - y||2 + lamada *||x||1."""
+  a = data_A
+  b = data_b
+
+  print("=" * 100)
+  print("LASSO: A_size={} b_size={}".format(a.shape, b.shape))
+  print("=" * 100)
+  def build():
+    """Builds loss graph."""
+
+    # Trainable variable.
+    x = tf.get_variable(
+        "x",
+        shape=[a.shape[0], a.shape[2]],
+        dtype=dtype,
+        initializer=tf.random_normal_initializer(stddev=stddev))
+
+    # Non-trainable variables.
+    w = tf.get_variable("w",
+                        shape=a.shape,
+                        dtype=dtype,
+                        initializer=tf.constant_initializer(a),
+                        trainable=False)
+    y = tf.get_variable("y",
+                        shape=b.shape,
+                        dtype=dtype,
+                        initializer=tf.constant_initializer(b),
+                        trainable=False)
+
+    # product = tf.squeeze(tf.matmul(w, tf.expand_dims(x, -1)))
+    
+    product = tf.matmul(w, tf.expand_dims(x, -1))
+    left_term = 0.5 * tf.reduce_sum((product - y) ** 2, 1)
+    other_term = l * tf.norm(x, ord=1, axis=1, keepdims=True)
+    result = tf.reduce_mean(left_term + other_term)
+    return result
+
+  return build
 
 def ensemble(problems, weights=None):
   """Ensemble of problems.
