@@ -81,7 +81,7 @@ def sche_ratio(epoch_index):
   
 
 def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, target_optimizee, unroll_unit, optim_it,
-           should_train,
+           should_train,data,
            out_mul=1, epoch_index=None, iteration_index=None, batch_size=1):
     sche_lr = list(np.arange(1e-4, 1e-1, (1e-1 - 1e-4) / int(0.2 * optim_it)))
     if should_train:
@@ -142,8 +142,6 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
                 curve_info[i_temp,0,1] = batch_optimizee[i_temp].all_named_parameters()[1][1].data.numpy()
 
     for iteration in range(1, optim_it + 1):
-        if should_train:
-            print("training inside iteration....", iteration)
         t1 = datetime.datetime.now()
 
         offset = 0

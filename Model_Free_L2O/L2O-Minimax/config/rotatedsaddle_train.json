@@ -15,8 +15,8 @@
 "rescale":0.001,
 "CL":0,
 "mode":"train",
-"train_data_path":"/dataset/toy/range1_train.txt",
-"eval_data_path":"/dataset/toy/range1_eval.txt",
+"train_data_path":"./dataset/toy/range1_train.txt",
+"eval_data_path":"./dataset/toy/range1_eval.txt",
 "save_name":"twin_rotatedsaddle",
 "load_name":""
 

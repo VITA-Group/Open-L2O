@@ -12,7 +12,7 @@
 "rescale":0.001,
 "CL":0,
 "mode":"test",
-"test_data_path":"/dataset/toy/range1_test.txt",
+"test_data_path":"./dataset/toy/range1_test.txt",
 "save_name":"twin_rotatedsaddle",
 "load_name":"twin_rotatedsaddle",
 "load_model":"best"
