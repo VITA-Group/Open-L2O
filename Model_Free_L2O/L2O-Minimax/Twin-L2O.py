@@ -37,8 +37,8 @@ datetime.datetime.now()
 
 USE_CUDA = torch.cuda.is_available()
 
-if not os.path.exists("../result"):
-    os.mkdir("../result")
+if not os.path.exists("./result"):
+    os.mkdir("./result")
 
 parser = argparse.ArgumentParser()
 parser.add_argument("--config", default="saddle_train", type=str)
@@ -51,12 +51,12 @@ config = args.config
 with open("config/" + config + ".json") as temp:
     params = json.load(temp)
 
-save_name = "../../result/" + params["save_name"] 
+save_name = "./result/" + params["save_name"] 
 
 if params['save_name'] and not os.path.exists(save_name):
     os.makedirs(save_name)
 
-load_name = "../../result/" + params["load_name"] 
+load_name = "./result/" + params["load_name"] 
 
 
 torch.manual_seed(params['seed'])
@@ -408,7 +408,7 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
 
         ################################ save curve info ################################
     if should_train and params['save_curve']:
-        save_name = "../../result/" + params["save_name"]
+        save_name = "./result/" + params["save_name"]
 
         if not os.path.exists(save_name):
             save_name = load_name
@@ -422,7 +422,7 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
                 iteration_index) + "_batch_index_" + str(i_temp) + temp_name + ".txt", curve_info[i_temp, :, :])
     elif params['mode'] == "test" and params['save_curve']:
 
-        save_name = "../../result/" + params["save_name"]
+        save_name = "./result/" + params["save_name"]
 
         if not os.path.exists(save_name):
             save_name = load_name
@@ -748,7 +748,7 @@ if __name__ == "__main__":
                 plt.title("Toy Example:" + r'$-bv \sin (a\pi u)$')
 
 
-            save_name = "../../result/" + params["save_name"] 
+            save_name = "./result/" + params["save_name"] 
 
             if not os.path.exists(save_name):
                 save_name = load_name
@@ -784,7 +784,7 @@ if __name__ == "__main__":
                 plt.title("Toy Example:" + r'$-bv \sin (a\pi u)$')
 
 
-            save_name = "../../result/" + params["save_name"]
+            save_name = "./result/" + params["save_name"]
 
             if not os.path.exists(save_name):
                 save_name = load_name
