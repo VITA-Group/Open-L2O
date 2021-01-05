@@ -30,7 +30,7 @@ import torch
 from torch.autograd import Variable
 from torchviz import make_dot
 import sys
-sys.path.insert(0, '../utils')
+sys.path.insert(0, './utils')
 import metrics
 import pandas as pd
 datetime.datetime.now()
@@ -47,7 +47,7 @@ parser.add_argument("--eval_interval",type=int, default=5)
 args = parser.parse_args()
 config = args.config
 config = args.config
-args.rescale = params['rescale']
+
 with open("config/" + config + ".json") as temp:
     params = json.load(temp)
 
@@ -60,7 +60,7 @@ load_name = "../../result/" + params["load_name"]
 
 
 torch.manual_seed(params['seed'])
-
+args.rescale = params['rescale']
 
 def detach_var(v):
     var = w(Variable(v.data, requires_grad=True))
@@ -450,7 +450,7 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
 
 
 def fit_optimizer(target_loss, target_optimizee, n_train, batch_size, unroll_unit,
-                  train_optim_it, eval_optim_it, n_epochs, n_eval, lr, save_name, save, preproc=False, out_mul=1):
+                  train_optim_it, eval_optim_it, n_epochs, n_eval, lr, save_name , preproc=False, out_mul=1):
 
     # Summary: for training the LSTM, we train it n_epochs,.
     # For each epoch, the training data -- target loss function size is 128
@@ -580,9 +580,8 @@ def fit_optimizer(target_loss, target_optimizee, n_train, batch_size, unroll_uni
                 best_loss = loss
                 best_net_min = copy.deepcopy(opt_net_min.state_dict())
                 best_net_max = copy.deepcopy(opt_net_max.state_dict())
-                if save == 1:
-                    torch.save(best_net_min, save_name + "/" + "best" + "min.pth")
-                    torch.save(best_net_max, save_name + "/" + "best" + "max.pth")
+                torch.save(best_net_min, save_name + "/" + "best" + "min.pth")
+                torch.save(best_net_max, save_name + "/" + "best" + "max.pth")
 
     return best_loss, best_net_min, best_net_max
 
