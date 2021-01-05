@@ -12,7 +12,7 @@
 "loss":1,
 "save_curve":1,
 "unroll_unit":5,
-"rescale":1,
+"rescale":0.0001,
 "CL":0,
 "mode":"train",
 "train_data_path":"./dataset/toy/range1_train.txt",
