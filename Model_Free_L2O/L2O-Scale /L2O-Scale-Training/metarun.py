@@ -146,7 +146,10 @@ tf.app.flags.DEFINE_boolean("include_dependency_chain_problems", False,
                             """Include dependency chain problems.""")
 tf.app.flags.DEFINE_boolean("include_min_max_well_problems", False,
                             """Include min-max well problems.""")
-
+tf.app.flags.DEFINE_boolean("include_lasso_problems", False,
+                            """Include lasso problems.""")
+tf.app.flags.DEFINE_boolean("include_rastrigin_problems", False,
+                            """Include rastrigin problems.""")
 # Optimizer parameters: initialization and scale values
 tf.app.flags.DEFINE_float("min_lr", 1e-6,
                           """The minimum initial learning rate.""")
@@ -347,6 +350,12 @@ def main(_):
 
   if FLAGS.include_dependency_chain_problems:
     problems_and_data.extend(ps.dependency_chain_problems())
+  
+  if FLAGS.include_lasso_problems:
+    problems_and_data.extend(ps.lasso_problems())
+  
+  if FLAGS.include_rastrigin_problems:
+    problems_and_data.extend(ps.rastrigin_problems())
 
   # log directory
   logdir = os.path.join(FLAGS.train_dir,

@@ -387,7 +387,26 @@ class Lasso(Problem):
     * tf.nn.l1_loss(params[0])
 
 class Rastrigin(Problem):
-  pass # TODO
+  def __init__(self, ndim, alpha=10, random_seed=None, noise_stdev=0.0):
+    param_shapes=[(ndim, 1)]
+    super(Rastrigin,self).__init__(param_shapes, random_seed, noise_stdev)
+    self.a = np.random.randn(ndim, ndim).astype("float32")
+    self.b = np.random.randn(ndim, 1).astype("float32")
+    self.c = np.random.randn(ndim, 1).astype("float32")
+    self.alpha = alpha
+    self.ndim = ndim
+  def objective(self, x, data=None, labels=None):
+    '''
+    注意这个x是一个list，里面才是tensor，所以会看见代码里面经常用parameter[0]!!!
+    '''
+    # 这里x的形状似乎是先由前面的param_shape确定了，但是是确定为(1,2,1)，前面的1是因为外面有一层方括号（即list）
+    # 所以这里就要用x[0]，别的problem也是这样做的
+    pre_norm=tf.matmul(self.a,x[0])-self.b
+    ras_norm=tf.norm(pre_norm,ord=2,axis=[-2,-1])
+    cqTcos=tf.squeeze(tf.matmul(tf.transpose(self.C,perm=[0,2,1]),tf.cos(2*np.pi*x)))
+
+    return tf.reduce_mean(0.5*(ras_norm**2)-self.alpha * cqTcos+self.alpha * self.ndim * self.ndim)
+
 class Quadratic(Problem):
   """Optimizes a random quadratic function.
 

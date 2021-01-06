@@ -591,3 +591,18 @@ def test_problems():
        "convnet_mnist_relu", None),
   ]
   return tp
+
+
+# Lasso
+def lasso_problems(d):
+  
+  return [
+      (_Spec(pg.Lasso, (20, ), {}), None, None),
+  ]
+# rastrigin
+
+def rastrigin_problems(d):
+  
+  return [
+      (_Spec(pg.Rastrigin, (20, ), {}), None, None),
+  ]
