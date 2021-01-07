@@ -4,11 +4,13 @@
 
 #### Environment
 
-- Python 3.7
+- Python 3.6 
 
 - TensorFlow 1.14.0 (pip install tensorflow==1.14.0 or pip install tensorflow-gpu==1.14.0)
 
 - sonnet 1.11 (pip install dm-sonnet=1.11)
+
+- tensorflow-probability==0.7.0
 
 #### Train L2O-DM
 
