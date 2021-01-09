@@ -35,6 +35,7 @@ def run_epoch(sess, cost_op, ops, reset, num_unrolls,
   """Runs one optimization epoch."""
   start = timer()
   sess.run(reset)
+  cost = None
   if task_i == -1:
       if rd_scale:
         assert scale is not None
