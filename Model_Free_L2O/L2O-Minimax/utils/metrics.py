@@ -32,9 +32,7 @@ def get_index(all_distance_ever1,all_distance_ever2=None,iteration_index=-1,unro
         a = batch_data[i,0]
         b = batch_data[i,1]
         grad_v = [(-1) * b * math.sin(a * math.pi * u) for u in curve_u[i]]
-        grad_u = [(-1) * b * curve_v[i][j] * math.cos(a * math.pi * curve_u[i][j]) * a * math.pi for j in range(len(curve_v[i]))]
         grad_v_squared = [d ** 2 for d in grad_v]
-        grad_u_squared = [d ** 2 for d in grad_u]
         result.append(sum(grad_v_squared))
 
     return sorted(range(len(result)), key=lambda i: result[i], reverse=True)[-k:]
