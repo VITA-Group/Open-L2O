@@ -750,8 +750,10 @@ if __name__ == "__main__":
             opt_min.load_state_dict(torch.load(load_name + "/" + params['load_model'] + "min.pth"))
             opt_max.load_state_dict(torch.load(load_name + "/" + params['load_model'] + "max.pth"))
 
-        test_data = np.loadtxt(params['test_data_path'])
-        test_data = test_data[0:params['n_test'], :]
+        test_data = np.loadtxt(params['test_data_path']).astype(np.float32)
+        test_data = test_data[0:params['n_test']]
+        if params['loss'] == 4:  # Matrix game objective
+            test_data = test_data.reshape(params['n_test'], params['dim'], params['dim'])
         torch.manual_seed(70)
         for j_temp in range(params['n_test']):
             for i_temp in range(params['test_epochs']):

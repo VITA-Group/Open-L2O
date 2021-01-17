@@ -4,7 +4,7 @@
 	"test_optim_iter":2000,
 	"test_epochs":5,
 	"n_test":100,
-	"hidden_size":50,
+	"hidden_size":80,
 	"loss":4,
 	"unroll_unit":5,
 	"save_curve":1,
