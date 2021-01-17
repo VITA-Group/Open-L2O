@@ -29,6 +29,8 @@ In order to perform the training process, run the following command:
 python Twin-L2O.py --config saddle_train  #saddle
 python Twin-L2O.py --config rotatedsaddle_train  #rotated saddle
 python Twin-L2O.py --config seesaw_train  #seesaw
+python Twin-L2O.py --config matrix_game_dim1_train  #matrix game with dim=1
+python Twin-L2O.py --config matrix_game_dim5_train  #matrix game with dim=5
 ```
 
 #### Tesing
@@ -39,6 +41,8 @@ In order to perform the testing process, run the following command:
 python Twin-L2O.py --config saddle_test  #saddle
 python Twin-L2O.py --config rotatedsaddle_test  #rotated saddle
 python Twin-L2O.py --config seesaw_test  #seesaw
+python Twin-L2O.py --config matrix_game_dim1_test  #matrix game with dim=1
+python Twin-L2O.py --config matrix_game_dim5_test  #matrix game with dim=5
 ```
 
 ### Seesaw Problem Using Twin-L2O+Curriculum Learning
