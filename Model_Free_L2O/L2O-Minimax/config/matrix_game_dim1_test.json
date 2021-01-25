@@ -1,0 +1,19 @@
+{
+	"seed":0,
+	"use_second":1,
+	"test_optim_iter":2000,
+	"test_epochs":5,
+	"n_test":100,
+	"hidden_size":80,
+	"loss":4,
+	"unroll_unit":5,
+	"save_curve":1,
+	"rescale":0.0001,
+	"CL":0,
+	"mode":"test",
+	"test_data_path":"./dataset/matrix_game/dim1_p1.0_low0.5_high1.0_test.txt",
+	"save_name":"twin_matrix_game_dim1",
+	"load_name":"twin_matrix_game_dim1",
+	"load_model":"best",
+	"dim":1
+}

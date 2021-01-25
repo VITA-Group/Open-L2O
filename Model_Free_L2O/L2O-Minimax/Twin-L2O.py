@@ -6,6 +6,9 @@ import torch.nn.functional as F
 import torch.autograd as autograd
 import torch.optim as optim
 from torch.autograd import Variable
+import matplotlib
+# Force matplotlib to not use any Xwindows backend.
+matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 import torch
@@ -50,6 +53,11 @@ config = args.config
 
 with open("config/" + config + ".json") as temp:
     params = json.load(temp)
+
+# Get the dimension of the problem.
+# Matrix game experiments accept dimension >= 1.
+# All other experiments have dimension = 1.
+params['dim'] = params.get('dim', 1)
 
 save_name = "./result/" + params["save_name"] 
 
@@ -148,10 +156,10 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
         result_params = {"theta_min": [], "theta_max": []}
 
         if not iteration % (unroll_unit * 2) == 0:
-            hidden_states2_min = [w(Variable(torch.zeros(batch_size, opt_net_min.hidden_sz))) for _ in range(2)]
-            cell_states2_min = [w(Variable(torch.zeros(batch_size, opt_net_min.hidden_sz))) for _ in range(2)]
-        hidden_states2_max = [w(Variable(torch.zeros(batch_size, opt_net_max.hidden_sz))) for _ in range(2)]
-        cell_states2_max = [w(Variable(torch.zeros(batch_size, opt_net_max.hidden_sz))) for _ in range(2)]
+            hidden_states2_min = [w(Variable(torch.zeros(batch_size * params['dim'], opt_net_min.hidden_sz))) for _ in range(2)]
+            cell_states2_min = [w(Variable(torch.zeros(batch_size * params['dim'], opt_net_min.hidden_sz))) for _ in range(2)]
+        hidden_states2_max = [w(Variable(torch.zeros(batch_size * params['dim'], opt_net_max.hidden_sz))) for _ in range(2)]
+        cell_states2_max = [w(Variable(torch.zeros(batch_size * params['dim'], opt_net_max.hidden_sz))) for _ in range(2)]
 
         batch_gradient = []
         batch_gradient.clear()
@@ -166,14 +174,16 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
                 cur_sz = batch_size
                 input_temp = batch_target[i_temp].get_grad_v(theta_min=temp_u, theta_max=temp_v)  # grad_u
                 batch_input_result.append(input_temp)
+            # Share the optimizer among all dimensions of the optimizee, thus
+            # treating different dimensions as different samples when feeding
+            # the inputs to the optimizer.
+            batch_gradient_result = w(torch.cat(batch_gradient).view(batch_size * params['dim'], 1))
+            batch_input_result = w(torch.cat(batch_input_result).view(batch_size * params['dim'], 1))
 
-            batch_gradient_result = w(torch.tensor(batch_gradient).view(batch_size, 1))
-            batch_input_result = w(torch.tensor(batch_input_result).view(batch_size, 1))
-
+            # rescaling the hidden states to allevitate potential diverging outcome
             alpha = args.rescale
             hidden_states_min = [alpha*h for h in hidden_states_min]
-            cell_states_min = [alpha * h for h in cell_states_min]
-            # rescaling the hidden states to allevitate potential diverging outcome
+            cell_states_min   = [alpha*h for h in cell_states_min]
 
             updates, new_hidden, new_cell = opt_net_min(
                 batch_gradient_result, batch_input_result,
@@ -182,6 +192,10 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
             for i in range(len(new_hidden)):
                 hidden_states2_min[i][offset:offset + cur_sz] = new_hidden[i]
                 cell_states2_min[i][offset:offset + cur_sz] = new_cell[i]
+            # When problem dimension is greater than 1, split the updates generated
+            # by the optimizer to correspond with each optimizee.
+            if params['dim'] > 1:
+                updates = updates.split(params['dim'], dim=0)
 
             for i_temp, optimizee_temp in enumerate(batch_optimizee):
                 if iteration < 0.2 * optim_it:
@@ -196,7 +210,7 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
                 result_params["theta_min"][i_temp].retain_grad()
                 result_params["theta_max"].append(optimizee_temp.all_named_parameters()[1][1])
 
-        if iteration % 2 == 0:  # max  step
+        if iteration % 2 == 0:  # max step
             batch_input_result = []
             for i_temp, optimizee_temp in enumerate(batch_optimizee):
                 temp_v = batch_optimizee[i_temp].all_named_parameters()[1][1].clone().detach()
@@ -206,12 +220,12 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
                 cur_sz = batch_size
                 input_temp = batch_target[i_temp].get_grad_u(theta_min=temp_u, theta_max=temp_v)  # grad_u
                 batch_input_result.append(input_temp)
-            batch_gradient_result = w(torch.tensor(batch_gradient).view(batch_size, 1))
-            batch_input_result = w(torch.tensor(batch_input_result).view(batch_size, 1))
+            batch_gradient_result = w(torch.cat(batch_gradient).view(batch_size * params['dim'], 1))
+            batch_input_result = w(torch.cat(batch_input_result).view(batch_size * params['dim'], 1))
 
             alpha = args.rescale
             hidden_states_max = [alpha*h for h in hidden_states_max]
-            cell_states_max = [alpha * h for h in cell_states_max]
+            cell_states_max   = [alpha*h for h in cell_states_max]
 
             updates, new_hidden, new_cell = opt_net_max(
                 batch_gradient_result, batch_input_result,
@@ -221,6 +235,8 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
                 hidden_states2_max[i][offset:offset + cur_sz] = new_hidden[i]
                 cell_states2_max[i][offset:offset + cur_sz] = new_cell[i]
 
+            if params['dim'] > 1:
+                updates = updates.split(params['dim'], dim=0)
             for i_temp, optimizee_temp in enumerate(batch_optimizee):
                 if iteration < 0.2 * optim_it:
                     temp = optimizee_temp.all_named_parameters()[1][1] + torch.sign(
@@ -238,10 +254,13 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
             if should_train:
                 meta_opt_min.zero_grad()
                 meta_opt_max.zero_grad()
-                if "CL" in params and params['CL']:  ## Curriculum learning
+                if "CL" in params and params['CL']:  # Curriculum learning
                     count_temp = 0
-                    index = metrics.get_index(curve_info, iteration_index=iteration,unroll_unit=unroll_unit,batch_data=batch_data,
-                                                ratio=sche_ratio(epoch_index))
+                    index = metrics.get_index(curve_info,
+                                              iteration_index=iteration,
+                                              unroll_unit=unroll_unit,
+                                              batch_data=batch_data,
+                                              ratio=sche_ratio(epoch_index))
                     for b_temp in index:
                         count_temp += 1
                         if all_losses_min is None:
@@ -302,42 +321,39 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
             if iteration % 2 == 1:  # min step -- update u
                 hidden_states_min = hidden_states2_min
                 cell_states_min = cell_states2_min
-                if (hidden_states_min[0] == 0.0).all():
-                    assert False
             else:  # max step -- update v
                 hidden_states_max = hidden_states2_max
                 cell_states_max = cell_states2_max
-                if (hidden_states_max[0] == 0.0).all():
-                    assert False
 
-        ############################## Get current solution and save #######################
-        ####################################### Define Evaluation #########################################
+        #################### Get current solution and save ####################
+        ######################### Define Evaluation ###########################
         for i_temp in range(batch_size):
             solution = [0, 0]
             for i, p in enumerate(batch_optimizee[i_temp].all_named_parameters()):
                 if USE_CUDA:
-                    solution[i] = p[1].data.cpu().numpy()[0]
+                    solution[i] = p[1].data.cpu().numpy()
                 else:
-                    solution[i] = p[1].data.numpy()[0]
+                    solution[i] = p[1].data.numpy()
 
             if params['mode'] == "test":
                 if iteration % 2 == 1: # min step:
-                    curve_info[i_temp, iteration//2 + 1, 0] = solution[0]
+                    curve_info[i_temp, iteration//2 + 1, :params['dim']] = solution[0]
                 elif iteration % 2 == 0: # max step:
-                    curve_info[i_temp, iteration//2, 1] = solution[1]
+                    curve_info[i_temp, iteration//2, params['dim']:] = solution[1]
             else:            
-                curve_info[i_temp, iteration - 1, 0] = solution[0]
-                curve_info[i_temp, iteration - 1, 1] = solution[1]
+                curve_info[i_temp, iteration - 1, :params['dim']] = solution[0]
+                curve_info[i_temp, iteration - 1, params['dim']:] = solution[1]
+
             if params['loss'] == 1:
-                all_distance_ever_v[i_temp].append(abs(solution[1]))
-                all_distance_ever_u[i_temp].append(abs(solution[0]))
+                all_distance_ever_v[i_temp].append(np.sum(np.abs(solution[1])))
+                all_distance_ever_u[i_temp].append(np.sum(np.abs(solution[0])))
             if params['loss'] == 2:
-                all_distance_ever_v[i_temp].append(abs(solution[1]))
-                all_distance_ever_u[i_temp].append(abs(solution[0]))
+                all_distance_ever_v[i_temp].append(np.sum(np.abs(solution[1])))
+                all_distance_ever_u[i_temp].append(np.sum(np.abs(solution[0])))
             if params['loss'] == 3:
 
                 best_dist_u = 100000
-                initial_dist = abs(solution[0])
+                initial_dist = np.sum(np.abs(solution[0]))
                 k = 0
                 while True:
                     gt = k / batch_target[i_temp].a
@@ -346,14 +362,18 @@ def do_fit(opt_net_min, opt_net_max, meta_opt_min, meta_opt_max, target_loss, ta
                     else:
                         gt = gt.cpu().data.numpy()[0]
 
-                    dist = abs(abs(solution[0]) - gt)
+                    # NOTE: This is the Seesaw problem with `params['loss'] == 3`.
+                    dist = abs(np.sum(np.abs(solution[0])) - gt)
                     if dist < best_dist_u:
                         best_dist_u = dist
                     elif dist > initial_dist:
                         break
                     k = k + 1
-                all_distance_ever_v[i_temp].append(abs(solution[1]))
+                all_distance_ever_v[i_temp].append(np.sum(np.abs(solution[1])))
                 all_distance_ever_u[i_temp].append(best_dist_u)
+            if params['loss'] == 4:
+                all_distance_ever_u[i_temp].append(np.sum(np.abs(solution[0])))
+                all_distance_ever_v[i_temp].append(np.sum(np.abs(solution[1])))
 
         ######*********************** define reward ***********************####
         if iteration == 1:
@@ -458,7 +478,6 @@ def fit_optimizer(target_loss, target_optimizee, n_train, batch_size, unroll_uni
     opt_net_min = w(Optimizer(preproc=preproc))
     opt_net_max = w(Optimizer(preproc=preproc))
 
-
     meta_opt_min = optim.Adam(opt_net_min.parameters(), lr=lr)
     meta_opt_max = optim.Adam(opt_net_max.parameters(), lr=lr)
 
@@ -466,12 +485,18 @@ def fit_optimizer(target_loss, target_optimizee, n_train, batch_size, unroll_uni
     fit_data_v_train = np.zeros((batch_size, train_optim_it, 1))
     fit_data_v_train_detail = np.zeros((1, train_optim_it, batch_size))
     fit_data_u_train = np.zeros((batch_size, train_optim_it, 1))
-    fit_data_u_train_detail = np.zeros(
-        (1, train_optim_it, batch_size))  # fit_data_eval = np.zeros((n_eval,eval_optim_it*n_epochs,1))
-    training_data = np.loadtxt(params['train_data_path'])
-    training_data = training_data[0:n_train, :]
-    eval_data = np.loadtxt(params['eval_data_path'])
-    eval_data = eval_data[0:n_eval, :]
+    fit_data_u_train_detail = np.zeros((1, train_optim_it, batch_size))
+
+    training_data = np.loadtxt(params['train_data_path']).astype(np.float32)
+    training_data = training_data[0:n_train]
+    eval_data = np.loadtxt(params['eval_data_path']).astype(np.float32)
+    eval_data = eval_data[0:n_eval]
+    # Extra preprocessing steps for matrix game experiments.
+    # Turn the vector in each line into a matrix that character.
+    if params['loss'] == 4:  # Matrix game objective
+        training_data = training_data.reshape(n_train, params['dim'], params['dim'])
+        eval_data = eval_data.reshape(n_eval, params['dim'], params['dim'])
+
     np.random.seed(10)
     for epoch_temp in range(n_epochs):
 
@@ -586,8 +611,13 @@ def fit_optimizer(target_loss, target_optimizee, n_train, batch_size, unroll_uni
 
 class ToyLoss:
     def __init__(self, index, data, **kwargs):
-        self.a = w(Variable(torch.tensor([data[index, 0]])))
-        self.b = w(Variable(torch.tensor([data[index, 1]])))
+        if params['loss'] == 4:
+            self.A = w(Variable(torch.tensor(data[index])))
+            self.a = self.A[0,0]
+            self.b = self.A[-1,-1]
+        else:
+            self.a = w(Variable(torch.tensor([data[index, 0]])))
+            self.b = w(Variable(torch.tensor([data[index, 1]])))
 
     def get_loss(self, theta_min, theta_max):
         if params["loss"] == 1:
@@ -596,9 +626,10 @@ class ToyLoss:
             return self.a * theta_min * theta_min - self.b * theta_max * theta_max + 2 * theta_max * theta_min
         elif params['loss'] == 3:
             return (-1) * self.b * theta_max * torch.sin(math.pi * theta_min * self.a)
+        elif params['loss'] == 4:
+            return torch.dot(theta_min, torch.matmul(self.A, theta_max))
 
     def get_grad_u(self, theta_min, theta_max):  # theta_max is v
-        #
         if params['loss'] == 1:  # 2au
             return 2 * theta_min * self.a
         elif params['loss'] == 2:  # 2au+2v
@@ -606,6 +637,8 @@ class ToyLoss:
         elif params['loss'] == 3:
             return (-1) * self.b * theta_max * torch.cos(
                 self.a * math.pi * theta_min) * self.a * math.pi  # −bvcos(aπu)×aπ
+        elif params['loss'] == 4:  # A*v
+            return torch.matmul(self.A, theta_max)
 
     def get_grad_v(self, theta_min, theta_max):  # theta_min is u
         if params['loss'] == 1:  # −2bv
@@ -614,6 +647,9 @@ class ToyLoss:
             return (-2) * self.b * theta_max + 2 * theta_min
         elif params['loss'] == 3:  # −bsin(aπu)
             return (-1) * self.b * torch.sin(self.a * math.pi * theta_min)
+        elif params['loss'] == 4:  # A^T*u
+            return torch.matmul(self.A.t(), theta_min)
+
 
 class DualOptimizee(nn.Module):
     def __init__(self, theta_min=None, theta_max=None):
@@ -621,9 +657,9 @@ class DualOptimizee(nn.Module):
         # Note: assuming the same optimization for theta as for
         # the function to find out itself.
         if theta_min is None:
-            self.theta_min = nn.Parameter(0.5 * ((-1) + 2 * torch.rand(1)))
+            self.theta_min = nn.Parameter(0.5 * ((-1) + 2 * torch.rand(params['dim'])))
         if theta_max is None:
-            self.theta_max = nn.Parameter(0.5 * ((-1) + 2 * torch.rand(1)))
+            self.theta_max = nn.Parameter(0.5 * ((-1) + 2 * torch.rand(params['dim'])))
 
         if not theta_min is None:
             self.theta_min = theta_min
@@ -714,8 +750,10 @@ if __name__ == "__main__":
             opt_min.load_state_dict(torch.load(load_name + "/" + params['load_model'] + "min.pth"))
             opt_max.load_state_dict(torch.load(load_name + "/" + params['load_model'] + "max.pth"))
 
-        test_data = np.loadtxt(params['test_data_path'])
-        test_data = test_data[0:params['n_test'], :]
+        test_data = np.loadtxt(params['test_data_path']).astype(np.float32)
+        test_data = test_data[0:params['n_test']]
+        if params['loss'] == 4:  # Matrix game objective
+            test_data = test_data.reshape(params['n_test'], params['dim'], params['dim'])
         torch.manual_seed(70)
         for j_temp in range(params['n_test']):
             for i_temp in range(params['test_epochs']):
@@ -746,7 +784,8 @@ if __name__ == "__main__":
                 plt.title("Toy Example:" + r'$au^{2}-bv^{2}+2uv$')
             elif params['loss'] == 3:
                 plt.title("Toy Example:" + r'$-bv \sin (a\pi u)$')
-
+            elif params['loss'] == 4:
+                plt.title("Toy Example:" + r'$u^T A v$')
 
             save_name = "./result/" + params["save_name"] 
 
@@ -782,7 +821,8 @@ if __name__ == "__main__":
                 plt.title("Toy Example:" + r'$au^{2}-bv^{2}+2uv$')
             elif params['loss'] == 3:
                 plt.title("Toy Example:" + r'$-bv \sin (a\pi u)$')
-
+            elif params['loss'] == 4:
+                plt.title("Toy Example:" + r'$u^T A v$')
 
             save_name = "./result/" + params["save_name"]
 
@@ -792,3 +832,4 @@ if __name__ == "__main__":
                 os.makedirs(save_name + "/TestingPlot/" + params['load_model'])
             plt.savefig(save_name + "/TestingPlot/" + params['load_model'] + "/sample_index_" + str(j_temp) + "_u.pdf")
             plt.close()
+
