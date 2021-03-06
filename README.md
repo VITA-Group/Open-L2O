@@ -1,4 +1,4 @@
-# Awesome-L2O
+# Open-L2O
 
 This repository is to offer a TF implemented toolbox v1 for learning to optimize.
 
