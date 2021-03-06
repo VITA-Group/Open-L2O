@@ -9,7 +9,7 @@ This repository establishes the first comprehensive benchmark efforts of existin
 
 L2O (Learning to optimize) aims to replace manually designed analytic optimization algorithms (SGD, RMSProp, Adam, etc.) with learned update rules.
 
-![](Figs/framework.png)
+![](Figs/Framework.png)
 
 ### How does L2O work?
 
