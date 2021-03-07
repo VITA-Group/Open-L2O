@@ -1,9 +1,45 @@
-# Awesome-L2O
+# Open-L2O
 
-This repository is to offer a TF implemented toolbox v1 for learning to optimize.
+This repository establishes the first comprehensive benchmark efforts of existing learning to optimize (L2O) approaches on a number of problems and settings. We release our software implementation and data as the Open-L2O package, for reproducible research and fair benchmarking in the L2O field.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
 
+## Overview
+### What is learning to optimize (L2O)?
+
+L2O (Learning to optimize) aims to replace manually designed analytic optimization algorithms (SGD, RMSProp, Adam, etc.) with learned update rules.
+
+![](Figs/Framework.png)
+
+### How does L2O work?
+
+L2O serves as functions that can be fit from data. L2O gains experience from training optimization tasks in a principled and automatic way.
+
+### What can L2O do for you?
+
+L2O is particularly suitable for solving a certain type of optimization over a specific distribution of data repeatedly. In comparison to classic methods, L2O is shown to find higher-quality solutions and/or with much faster convergence speed for many problems.
+
+### Open questions for research?
+
+- There are significant theoretical and practicality gaps between manually designed optimizers and existing L2O models.
+
+
+## Main Results
+### Learning to optimize sparse recovery
+
+![](Figs/ss.png)
+
+### Learning to optimize Lasso functions
+
+![](Figs/lasso.png)
+
+### Learning to optimize non-convex Rastrigin functions
+
+![](Figs/ras.png)
+
+### Learning to optimize neural networks
+
+![](Figs/nn.png)
 
 
 ## Supported Model-base Learnable Optimizers

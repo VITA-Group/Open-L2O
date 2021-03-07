@@ -1,8 +1,28 @@
-## L2O-Minimax
+# Learning a Minimax Optimizer: A Pilot Study
 
-### Overview
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](https://opensource.org/licenses/MIT)
+
+Code for this paper [Learning a Minimax Optimizer: A Pilot Study]()
+
+Jiayi Shen\*, Xiaohan Chen\*, Howard Heaton*, Tianlong Chen, Jialin Liu, Wotao Yin, Zhangyang Wang
+
+## Overview
 
 Solving continuous minimax optimization is of extensive practical interest, yet notoriously unstable and difficult. We introduce the *learning to optimize* (L2O) methodology to the minimax problems for the first time, and addresses its accompanying unique challenges. We present *Twin L2O*, the first dedicated minimax L2O framework consisting of two LSTMs for updating min and max variables, respectively.  We then discuss a crucial concern of Twin-L2O, i.e., its inevitably limited generalizability to unseen optimizees, and present two complementary strategies. Our first solution, *Enhanced Twin-L2O*, is empirically applicable for general minimax problems, by improving L2O training via leveraging curriculum learning. Our second alternative, called *Safeguarded Twin L2O*, is a preliminary theoretical exploration stating that under some strong assumptions, it is possible to theoretically establish the convergence of Twin-L2O. 
+
+![minimax](img/minimax.png)
+
+## Main Experimental Results
+
+![results](img/results1.png)
+
+## Implementation of Experiments
+
+### Prerequisites
+
+GPU: GeForce GTX 1080 Ti
+
+Pytorch >= 1.3.0
 
 ### Configuration
 
@@ -10,12 +30,7 @@ The configuation files are stored in `/config` folder, depicting the experimenta
 
 ### Toy Examples Using Twin-L2O
 
-Four examples are demonstrated, where $a \sim U[0.9,1]$, $b \sim U[0.9,1]$.
-
-- Saddle $\min _{x} \max _{y} ax^2-by^2$
-- Rotated Saddle  $\min _{x} \max _{y} ax^2-by^2+2xy$
-- Seesaw  $\min _{x} \max _{y} -bvsin(a \pi u)$
-- Matrix Game $\min _{\mathbf{x}} \max _{\mathbf{y}} \mathbf{x}^{T} \mathbf{A} \mathbf{y}, \mathbf{A} \in \mathbb{R}^{5 \times 5}, \mathbf{A}_{i, j} \sim \operatorname{Bernoulli}(0.5) \cdot U[-1,1]$
+![](img/problems.png)
 
 #### Dataset
 
@@ -62,14 +77,14 @@ To perform training for Twin-L2O without curriculum Learning (Non-CL):
 
 ```shell
 python Twin-L2O.py --config seesaw_range2_train 
-# the same applies for other paramter ranges
+# the same applies for other parameter ranges
 ```
 
 To perform training for Twin-L2O with Curriculum Learning (CL): 
 
 ```shell
 python Twin-L2O.py --config seesaw_range2_CL_train 
-# the same applies for other paramter ranges
+# the same applies for other parameter ranges
 ```
 
 #### Testing
@@ -78,19 +93,30 @@ To perform testing for Twin-L2O without curriculum Learning (Non-CL):
 
 ```shell
 python Twin-L2O.py --config seesaw_range2_test 
-# the same applies for other paramter ranges
+# the same applies for other parameter ranges
 ```
 
 To perform testing for Twin-L2O with Curriculum Learning (CL):
 
 ```shell
 python Twin-L2O.py --config seesaw_range2_CL_test 
-# the same applies for other paramter ranges
+# the same applies for other parameter ranges
 ```
 
-
-
-### Acknowledgements
+## Acknowledgement
 
 We thank the author of the original code [AdrienLE/learning_by_grad_by_grad_repro](https://github.com/AdrienLE/learning_by_grad_by_grad_repro) , from which we design and develop our code.
+
+## Citation
+
+```
+@inproceedings{
+shen2021learning,
+title={Learning A Minimax Optimizer: A Pilot Study},
+author={Jiayi Shen and Xiaohan Chen and Howard Heaton and Tianlong Chen and Jialin Liu and Wotao Yin and Zhangyang Wang},
+booktitle={International Conference on Learning Representations},
+year={2021},
+url={https://openreview.net/forum?id=nkIDwI6oO4_}
+}
+```
 
