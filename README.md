@@ -62,7 +62,7 @@ L2O is particularly suitable for solving a certain type of optimization over a s
 
 ## Supported Optimizees
 
-Conv Functions:
+Convex Functions:
 
 - [x] Quadratic
 - [x]  Lasso
