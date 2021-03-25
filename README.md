@@ -111,6 +111,13 @@ Neural Networks:
 ## Cite
 
 ```
-TBD
+@misc{chen2021learning,
+      title={Learning to Optimize: A Primer and A Benchmark}, 
+      author={Tianlong Chen and Xiaohan Chen and Wuyang Chen and Howard Heaton and Jialin Liu and Zhangyang Wang and Wotao Yin},
+      year={2021},
+      eprint={2103.12828},
+      archivePrefix={arXiv},
+      primaryClass={math.OC}
+}
 ```
 
