@@ -44,8 +44,15 @@ L2O is particularly suitable for solving a certain type of optimization over a s
 
 ## Supported Model-base Learnable Optimizers
 
+All codes are available at [here](https://github.com/VITA-Group/Open-L2O/tree/main/Model_Base_L2O).
 
-
+1. LISTA (feed-forward form) from *Learning fast approximations of sparse coding* [[Paper](https://dl.acm.org/doi/abs/10.5555/3104322.3104374)]
+2. LISTA-CP from *Theoretical Linear Convergence of Unfolded ISTA and its Practical Weights and Thresholds* [[Paper](https://arxiv.org/abs/1808.10038)]
+3. LISTA-CPSS from *Theoretical Linear Convergence of Unfolded ISTA and its Practical Weights and Thresholds* [[Paper](https://arxiv.org/abs/1808.10038)]
+4. LFISTA from *Understanding Trainable Sparse Coding via Matrix Factorization* [[Paper](https://arxiv.org/abs/1609.00285)]
+5. LAMP from *AMP-Inspired Deep Networks for Sparse Linear Inverse Problems* [[Paper](https://ieeexplore.ieee.org/document/7934066)]
+6. ALISTA from *ALISTA: Analytic Weights Are As Good As Learned Weights in LISTA* [[Paper](https://openreview.net/forum?id=B1lnzn0ctQ)]
+7. GLISTA from *Sparse Coding with Gated Learned ISTA* [[Paper](https://openreview.net/forum?id=BygPO2VKPH)]
 
 
 ## Supported Model-free Learnable Optimizers
