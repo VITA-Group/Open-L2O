@@ -1,7 +1,0 @@
-__pycache__/ 
-Model_Free_L2O/L2O-DM and L2O-RNNProp/MNIST-data/
-Model_Free_L2O/L2O-Scale/L2O-Scale-Training/__pycache__/
-Model_Free_L2O/L2O-Scale/L2O-Scale-Training/hess_cl_mt/*
-Model_Free_L2O/L2O-Scale/L2O-Scale-Training/cifar10/cifar10_datasets.png
-Model_Free_L2O/L2O-Scale/L2O-Scale-Training/.idea/*
-.vscode
