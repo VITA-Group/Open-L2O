@@ -100,7 +100,9 @@ Neural Networks:
 - This is the original L2O-Swarm repository. [[Code](https://github.com/Shen-Lab/LOIS)]
 - This is the original L2O-Jacobian repository. [[Code](https://github.com/RICE-EIC/HALO)]
 
+## Hardware Information
 
+Our experiments were conducted on a cluster with two GPUs (GeForce RTX 3080) and a 14-core CPU (Intel(R) Core(TM) i9-9940X).
 
 ## Future Works
 
